@@ -35,28 +35,27 @@ dim(clinical)
 
 nor<-subset(clinical,sample_type == "Solid Tissue Normal")
 pri<-subset(clinical,sample_type=="Primary Tumor")
-##ƥ???????????????ݲ?????????ID
+
 index_nor<-intersect(rownames(nor),colnames(genes))
 index_pri<-intersect(rownames(pri),colnames(genes))
-##?ֱ???ȡת???Ժ?ԭ???Ի??ߵ??ٴ???Ϣ
+
 clinical_nor<-nor[index_nor,]
 clinical_pri<-pri[index_pri,]
-##?ֱ???ȡת???Ժ?ԭ???Ի??ߵĻ?????????Ϣ
+
 genes_nor<-genes[,index_nor]
 genes_pri<-genes[,index_pri]
-##????ѵ��??
-#num_training = length(index_pri)%/%2  #######%/%是取整除的意思，比如10%/%3=3
+
 #training_name = sample(rownames(clinical_pri),num_training)
 training_name = rownames(clinical_pri)
 training_clinical = clinical_pri[training_name,]
 training_genes = genes_pri[,training_name]
-##???ֲ??Լ?
+
 test_name = setdiff(rownames(clinical_pri),rownames(training_clinical))
 test_clinical = clinical_pri[test_name,]
 test_genes = genes_pri[,test_name]
-#????????????
+
 genesdiff<-cbind(training_genes,genes_nor)
-exp_kirc<-as.matrix(genesdiff)#ת??Ϊ????
+exp_kirc<-as.matrix(genesdiff)
 genesdiff
 
 
@@ -64,7 +63,7 @@ genesdiff
 
 
 
-#######基因差异表达分析
+#######Gene differential expression analysis
 
 samps<-factor(c(rep("pri",dim(training_clinical)[1]),rep("nor",dim(clinical_nor)[1])))
 design<-model.matrix(~0+samps)
@@ -75,9 +74,9 @@ cont.matrix
 fit<-lmFit(exp_kirc,design)
 fit2<-contrasts.fit(fit,cont.matrix)
 fit2<-eBayes(fit2)
-final<-topTable(fit2, coef=1,number=dim(exp_kirc)[1],adjust.method="BH",sort.by="B") #????????????????
+final<-topTable(fit2, coef=1,number=dim(exp_kirc)[1],adjust.method="BH",sort.by="B") 
 final<-na.omit(final)
-deg<-subset(final, adj.P.Val<0.001&abs(logFC)>0.7&AveExpr>5&B>5) #ɸѡ????
+deg<-subset(final, adj.P.Val<0.001&abs(logFC)>0.7&AveExpr>5&B>5) 
 write.csv(deg,file='F:/deg.csv')
 
 
@@ -163,13 +162,13 @@ write.csv(uniconxrna0.05,file='F:/uniconxrna0.05.csv')
 
 
 
-##############生存时间
+##############Time of live
 index1<-intersect(colnames(genes_pri), rownames(clinical_pri))
 genes1<-genes_pri[,index1]
 clinical1<-clinical_pri[index1,]
 genes1<-t(genes1)
 time1<-as.data.frame(clinical1$OS.time)
-genes1<-genes1[,colnames(tcandigene)]#######如果还不行，下次尝试这个
+genes1<-genes1[,colnames(tcandigene)]
 names(time1)<-'rs'
 time1<-as.data.frame(time1)
 
@@ -186,13 +185,13 @@ write.table(rs,file='H:/ruxianai/rs.csv', row.names=FALSE,quote=FALSE, sep =",")
 
 
 
-##############年龄
+##############age
 index1<-intersect(colnames(genes_pri), rownames(clinical_pri))
 genes1<-genes_pri[,index1]
 clinical1<-clinical_pri[index1,]
 genes1<-t(genes1)
 time1<-as.data.frame(clinical1$Age_at_Initial_Pathologic_Diagnosis_nature2012)
-genes1<-genes1[,colnames(tcandigene)]#######如果还不行，下次尝试这个
+genes1<-genes1[,colnames(tcandigene)]
 names(time1)<-'rs'
 rs<-time1$rs>65
 rs<-as.data.frame(rs)
@@ -207,13 +206,13 @@ write.table(rs,file='H:/ruxianai/rs.csv', row.names=FALSE,quote=FALSE, sep =",")
 
 
 
-######病人所处的阶段
+######The stage of the patient
 index1<-intersect(colnames(genes_pri), rownames(clinical_pri))
 genes1<-genes_pri[,index1]
 clinical1<-clinical_pri[index1,]
 genes1<-t(genes1)
 time1<-as.data.frame(clinical1$pathologic_T)
-genes1<-genes1[,colnames(tcandigene)]#######如果还不行，下次尝试这个
+genes1<-genes1[,colnames(tcandigene)]
 names(time1)<-'rs'
 rs<-time1
 write.table(genes1,file='H:/ruxianai/genes2.txt',row.names=FALSE,quote=FALSE, sep =",")
@@ -226,14 +225,14 @@ write.table(rs,file='H:/ruxianai/rs.csv', row.names=FALSE,quote=FALSE, sep =",")
 
 
 
-#################################肿瘤状态with_tumor   tumor_free
+#################################State of the tumor with_tumor   tumor_free
 index1<-intersect(colnames(genes_pri), rownames(clinical_pri))
 genes1<-genes_pri[,index1]
 clinical1<-clinical_pri[index1,]
 genes1<-t(genes1)
 time1<-as.data.frame(clinical1$person_neoplasm_cancer_status)
-genes1<-genes1[,colnames(tcandigene)]#######如果还不行，下次尝试这个
-#genes1<-genes1[,rownames(combine)]#######如果还不行，下次尝试这个
+genes1<-genes1[,colnames(tcandigene)]
+#genes1<-genes1[,rownames(combine)]
 names(time1)<-'rs'
 rs<-time1
 write.table(genes1,file='H:/ruxianai/genes2.txt',row.names=FALSE,quote=FALSE, sep =",")
